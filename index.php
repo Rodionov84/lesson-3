@@ -80,24 +80,36 @@ $continents = [
     // Перемешать названия животных и составить новые
 
     $real_animals = []; // => ['animal 1', 'animal 2', ...]
-    foreach ($continents as $animals)
+    foreach ($continents as $animals) {
         $real_animals = array_merge($real_animals, $animals);
+    }
     $real_animals = array_unique($real_animals);
 
-    $real_animals_words = [];
-    foreach ($real_animals as $animal)
-        $real_animals_words = array_merge($real_animals_words, explode(' ', $animal));
+    $real_animals_words = []; /* =>
+        [0] => [первое слово названия животного 1, ... 2, ... 3, ...],
+        [1] => [второе слово названия животного 1, ... 2, ... 3, ...],
+        [...] => [...]
+    */
+    foreach ($real_animals as $animal) {
+        $words = explode(' ', $animal); // [первое, второе, ...]
+        foreach ($words as $i => $v) {
+            if (empty($real_animals_words[$i]))
+                $real_animals_words[$i] = [];
+            $real_animals_words[$i][] = $v;
+        }
+    }
     
-    shuffle($real_animals_words); // меняет порядок элементов этого массива произвольным способом
+    foreach ($real_animals_words as &$words) { // (&) получаем сам оригинальный объект, а не его копию
+        shuffle($words); // меняет порядок элементов этого массива произвольным способом
+    }
 
     $new_animals = [];
-    while (count($real_animals_words) > 0) { // while (!empty($real_animals_words))
-        $w1 = ucfirst(array_shift($real_animals_words));
-        $w2 = strtolower(array_shift($real_animals_words));
-        if (is_null($w2))
-            $res = $w1;
-        else
-            $res = "{$w1} {$w2}";
+    while (count($real_animals_words[0]) > 0) { // while (!empty($real_animals_words[0]))
+        $w = [];
+        foreach ($real_animals_words as &$words) {
+            $w[] = array_shift($words);
+        }
+        $res = implode(' ', $w);
         $new_animals[] = $res;
     }
 
